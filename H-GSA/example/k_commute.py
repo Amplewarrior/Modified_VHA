@@ -300,10 +300,6 @@ def diag_circ_from_ham(hamiltonian, k):
     nqubits = get_num_qubits(hamiltonian)
     qubits = sorted(set(hamiltonian.qubits))
     nterms = len(hamiltonian)
-    groups = get_si_sets(hamiltonian, k)
-    nqubits = get_num_qubits(hamiltonian)
-    qubits = sorted(set(hamiltonian.qubits))
-    nterms = len(hamiltonian)
     group_block_circuits = []
     for group in groups:
         blocked_stim_strings = convert_to_stim_strings(group, k, qubits)
