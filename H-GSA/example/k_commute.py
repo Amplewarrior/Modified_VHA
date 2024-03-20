@@ -261,7 +261,6 @@ def compute_measurement_circuit_depth(stim_strings):
                 allow_redundant=True,
                 allow_underconstrained=True
                 )
-                print('tableau: ',stim_tableau)
                 result = True
             except ValueError:
                 pass
