@@ -193,7 +193,7 @@ def get_bit(value, bit):
     return value >> bit & 1
 
 
-def convert_to_stim_strings(group, k, qubits):
+def convert_to_stim_strings(group, k, qubits): #takes in 1 k-commuting group from si 
     """Convert the group to Stim strings that can be used to generate
     the tableau.
     
@@ -223,7 +223,7 @@ def convert_to_stim_strings(group, k, qubits):
             if any(s in ss for s in ["X", "Y", "Z"]): 
                 block_strings.append(ss)
         all_strings.append(block_strings)
-    return all_strings
+    return all_strings  #returns list of n/k blocks of strings, all_strings[0][3] commutes with all_strings[3][3]
     
     
 
@@ -243,9 +243,10 @@ def compute_measurement_circuit_depth(stim_strings):
     all_depths = []
     all_circuits = []
     
-    for block_strings in stim_strings:
+    for block_strings in stim_strings:  #block strings is list of commuting blocks
         # Compute tableau and measurement circuit
-        if not block_strings:
+        print('strings: ', block_strings)
+        if not block_strings: 
             continue
         signs = 0
         result = False
@@ -260,6 +261,7 @@ def compute_measurement_circuit_depth(stim_strings):
                 allow_redundant=True,
                 allow_underconstrained=True
                 )
+                print('tableau: ',stim_tableau)
                 result = True
             except ValueError:
                 pass
@@ -275,8 +277,8 @@ def compute_measurement_circuit_depth(stim_strings):
             depth = len(final_ckt)
             all_depths.append(depth)
             all_circuits.append(final_ckt)
-        #else:
-        #    raise RuntimeWarning('No independent set of stabilizers found.')
+        else:
+            raise RuntimeWarning('No independent set of stabilizers found.')
         
     return all_depths, all_circuits
 
@@ -305,6 +307,7 @@ def diag_circ_from_ham(hamiltonian, k):
         blocked_stim_strings = convert_to_stim_strings(group, k, qubits)
         all_depths, all_circuits = compute_measurement_circuit_depth(blocked_stim_strings)
         group_block_circuits.append(all_circuits)
+
     group_circuits = []
     for group_ckt in group_block_circuits:
         circuit = cirq.Circuit()
