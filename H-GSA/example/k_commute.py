@@ -248,22 +248,24 @@ def compute_measurement_circuit_depth(stim_strings):
         print('strings: ', block_strings)
         if not block_strings: 
             continue
-        signs = 0
+        attempt = 0
         result = False
-        
-        while not result and signs < 2**(len(block_strings[0])-1):
-            try:
-                signs += 1
-                stim_tableau = stim.Tableau.from_stabilizers(
-                    [stim.PauliString(
-                        ('-' if get_bit(signs-1, i) else '+') + stim_str[1:]) for i, stim_str in enumerate(block_strings)
-                    ],
-                allow_redundant=True,
-                allow_underconstrained=True
-                )
-                result = True
-            except ValueError:
-                pass
+
+        while not result and attempt < 2**(len(block_strings)+1):
+            if len(bin(attempt))-2 > len(block_strings):
+                try:
+                    stim_tableau = stim.Tableau.from_stabilizers(
+                        [stim.PauliString(
+                            ('-' if bin(attempt)[-(i+1)] == '0' else '+') + stim_str[1:]) for i, stim_str in enumerate(block_strings)
+                        ],
+                    allow_redundant=True,
+                    allow_underconstrained=True
+                    )
+                    result = True
+                except ValueError:
+                    pass
+            attempt+=1
+
         if result:
             stim_circuit = stimcirq.stim_circuit_to_cirq_circuit(
                 stim_tableau.to_circuit(method="elimination")
