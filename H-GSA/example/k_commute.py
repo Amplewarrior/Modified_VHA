@@ -205,6 +205,10 @@ def convert_to_stim_strings(group, k, qubits): #takes in 1 k-commuting group fro
             value of k
         qubits:
             qubits hamiltonian acts on
+    Retuns
+    ------
+        list of blocks of commuting string subsections
+
     """
     
     # Compute the blocks of size k
@@ -215,7 +219,6 @@ def convert_to_stim_strings(group, k, qubits): #takes in 1 k-commuting group fro
     all_strings = []
     for block in blocks:
         block_strings = []
-        #print(f'block: {block}')
         for i, ps in enumerate(group):
             ps = restrict_to(ps, block)
             dps = ps.dense(block)
@@ -238,14 +241,13 @@ def compute_measurement_circuit_depth(stim_strings):
     
     Returns
     -------
-        optimized depth
+        optimized depth, diagonalizing circuit for each block
     """
     all_depths = []
     all_circuits = []
     
     for block_strings in stim_strings:  #block strings is list of commuting blocks
         # Compute tableau and measurement circuit
-        print('strings: ', block_strings)
         if not block_strings: 
             continue
         attempt = 0
@@ -308,16 +310,15 @@ def diag_circ_from_ham(hamiltonian, k):
         blocked_stim_strings = convert_to_stim_strings(group, k, qubits)
         all_depths, all_circuits = compute_measurement_circuit_depth(blocked_stim_strings)
         group_block_circuits.append(all_circuits)
-
-    group_circuits = []
-    for group_ckt in group_block_circuits:
+    group_circuits = [] # for each group there is a list of circuits which diagonalize blocks
+    for group_ckt in group_block_circuits: #group_ckt is ckts that diagonalize blocks
         circuit = cirq.Circuit()
         all_transformed_circuits = []
         for j in range(len(group_ckt)):
             qubit_map = {}
             for i in range(0, k):
                 qubit_map[cirq.LineQubit(i)] = cirq.LineQubit(i + j * k)
-            transformed_ckt = group_ckt[j].transform_qubits(qubit_map=qubit_map)
+            transformed_ckt = group_ckt[j].transform_qubits(qubit_map=qubit_map) # stacks ckts
             all_transformed_circuits.append(transformed_ckt)
         circuit.append(all_transformed_circuits)
         group_circuits.append(circuit)
